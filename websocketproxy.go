@@ -94,9 +94,7 @@ func (w *WebsocketProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if origin := req.Header.Get("Origin"); origin != "" {
 		requestHeader.Add("Origin", origin)
 	}
-	for _, prot := range req.Header[http.CanonicalHeaderKey("Sec-WebSocket-Protocol")] {
-		requestHeader.Add("Sec-WebSocket-Protocol", prot)
-	}
+	copySecWebsocketHeaders(requestHeader, req.Header)
 	for _, cookie := range req.Header[http.CanonicalHeaderKey("Cookie")] {
 		requestHeader.Add("Cookie", cookie)
 	}
@@ -162,9 +160,7 @@ func (w *WebsocketProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	// Only pass those headers to the upgrader.
 	upgradeHeader := http.Header{}
-	if hdr := resp.Header.Get("Sec-Websocket-Protocol"); hdr != "" {
-		upgradeHeader.Set("Sec-Websocket-Protocol", hdr)
-	}
+	copySecWebsocketHeaders(upgradeHeader, resp.Header)
 	if hdr := resp.Header.Get("Set-Cookie"); hdr != "" {
 		upgradeHeader.Set("Set-Cookie", hdr)
 	}
