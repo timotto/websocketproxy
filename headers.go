@@ -7,7 +7,15 @@ import (
 
 func copySecWebsocketHeaders(dst, src http.Header) {
 	for key, values := range src {
-		if !strings.HasPrefix(strings.ToLower(key), "sec-websocket-") {
+		lKey := strings.ToLower(key)
+		if !strings.HasPrefix(lKey, "sec-websocket-") {
+			continue
+		}
+
+		switch lKey {
+		case "sec-websocket-key":
+			continue
+		case "sec-websocket-version":
 			continue
 		}
 

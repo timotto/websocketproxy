@@ -34,7 +34,7 @@ func TestProxy(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.Handle("/proxy", proxy)
 	go func() {
-		if err := http.ListenAndServe(":7777", mux); err != nil {
+		if err := http.ListenAndServe("127.0.0.1:7777", mux); err != nil {
 			t.Fatal("ListenAndServe: ", err)
 		}
 	}()
@@ -46,7 +46,7 @@ func TestProxy(t *testing.T) {
 		mux2 := http.NewServeMux()
 		mux2.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			// Don't upgrade if original host header isn't preserved
-			if r.Host !=  "127.0.0.1:7777" {
+			if r.Host != "127.0.0.1:7777" {
 				log.Printf("Host header set incorrectly.  Expecting 127.0.0.1:7777 got %s", r.Host)
 				return
 			}
@@ -67,7 +67,7 @@ func TestProxy(t *testing.T) {
 			}
 		})
 
-		err := http.ListenAndServe(":8888", mux2)
+		err := http.ListenAndServe("127.0.0.1:8888", mux2)
 		if err != nil {
 			t.Fatal("ListenAndServe: ", err)
 		}
