@@ -6,12 +6,7 @@ import (
 )
 
 func (w *WebsocketProxy) setupPingPongPassThrough(dst, src *websocket.Conn) {
-	writeTimeout := w.PingPongWriteTimeout
-	if writeTimeout != 0 {
-		writeTimeout = 10 * time.Second
-	}
-
-	deadline := func() time.Time { return time.Now().Add(writeTimeout) }
+	deadline := deadlineFunction(w.PingPongWriteTimeout)
 
 	handler := func(messageType int, remote *websocket.Conn) func(string) error {
 		return func(appData string) error {
@@ -26,4 +21,16 @@ func (w *WebsocketProxy) setupPingPongPassThrough(dst, src *websocket.Conn) {
 
 	pair(dst, src)
 	pair(src, dst)
+}
+
+func deadlineFunction(timeout time.Duration) func() time.Time {
+	if timeout == 0 {
+		return func() time.Time {
+			return time.Time{}
+		}
+	}
+
+	return func() time.Time {
+		return time.Now().Add(timeout)
+	}
 }
